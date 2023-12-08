@@ -5,13 +5,10 @@ module.exports = defineConfig({
   publicPath: '/',
   devServer: {
     proxy: {
-      '/api': {
-        target: 'chat-back.tobeyou.cn',
+      "/api": {
+        target: "chat-back.tobeyou.cn",
         changeOrigin: true,
-        wx: true,
-        pathRewrite: {
-          '^/api': ''
-        }
+        rewrite: (path) => path.replace("/api", ""),
       }
     }
   },
