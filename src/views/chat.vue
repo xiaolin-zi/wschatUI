@@ -575,8 +575,9 @@ export default {
     getwebsocket() {
       // console.log(this.userInfo);
       if ('WebSocket' in window) {
-
-        this.ws = new WebSocket(base.ip);//用于创建 WebSocket 对象。WebSocketTest对应的是java类的注解值
+        const token = cookie.get('ws_token')
+        this.ws = new WebSocket(base.ip,[token]);//用于创建 WebSocket 对象。WebSocketTest对应的是java类的注解值
+        // this.ws = new WebSocket(base.ip);
       } else {
         alert('当前浏览器 Not support websocket')
       }
