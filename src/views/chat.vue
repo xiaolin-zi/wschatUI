@@ -517,18 +517,18 @@ export default {
             sendAvatar: this.userInfo.avatar,
             sendNickname: this.userInfo.nickname,
             contentType: 'ping',
-            content: message,
             type: this.acceptUser.type,
             sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
           })
           ws.send(obj)
         }
       }, 55000, this.ws, this.userInfo.id)
+
+
     },
     handleWsClose(e) {
       console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
-      console.log(e)
-      console.log(e)
+
     },
     handleWsError(e) {
       this.$message.error('意外错误，weksocket关闭，请刷新网页重试！')
