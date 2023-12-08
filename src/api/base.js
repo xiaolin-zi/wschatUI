@@ -1,4 +1,4 @@
-const ip = "wss://154.12.40.85:8080/ws";
+const ip = "wss://chat-back.tobeyou.cn/ws";
 
 export default {
     ip
