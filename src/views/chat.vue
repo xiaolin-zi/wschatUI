@@ -517,7 +517,7 @@ export default {
             sendAvatar: this.userInfo.avatar,
             sendNickname: this.userInfo.nickname,
             contentType: 'ping',
-            type: this.acceptUser.type,
+            type: 1,
             sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
           })
           ws.send(obj)
