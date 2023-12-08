@@ -508,26 +508,25 @@ export default {
     handleWsOpen() {
       console.log('WebSocket2已经打开!')
 
-      // setInterval(function (ws, id) {
-      //   if (ws.readyState === 1) {
-      //     var obj = JSON.stringify({
-      //       sendId: id,
-      //       acceptId: id,
-      //       acceptMember: '',
-      //       sendAvatar: this.userInfo.avatar,
-      //       sendNickname: this.userInfo.nickname,
-      //       contentType: 'ping',
-      //       type: this.acceptUser.type,
-      //       sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
-      //     })
-      //     ws.send(obj)
-      //   }
-      // }, 55000, this.ws, this.userInfo.id)
-      // console.log('开始发送心跳');
+      setInterval(function (ws, id) {
+        if (ws.readyState === 1) {
+          var obj = JSON.stringify({
+            sendId: id,
+            acceptId: id,
+            acceptMember: '',
+            sendAvatar: this.userInfo.avatar,
+            sendNickname: this.userInfo.nickname,
+            contentType: 'ping',
+            type: this.acceptUser.type,
+            sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
+          })
+          ws.send(obj)
+        }
+      }, 55000, this.ws, this.userInfo.id)
+      console.log('开始发送心跳');
     },
     handleWsClose(e) {
       console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
-
     },
     handleWsError(e) {
       this.$message.error('意外错误，weksocket关闭，请刷新网页重试！')
