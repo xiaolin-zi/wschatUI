@@ -4,7 +4,7 @@ import router from "@/router";
 
 // 创建axios实例
 const service = axios.create({
-    baseURL: 'http://154.12.40.85:8888/', // api的base_url
+    baseURL: 'https://154.12.40.85:8888/', // api的base_url
     timeout: 20000 // 请求超时时间
 })
 
