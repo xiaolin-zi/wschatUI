@@ -523,8 +523,7 @@ export default {
           ws.send(obj)
         }
       }, 55000, this.ws, this.userInfo.id)
-
-
+      console.log('开始发送心跳');
     },
     handleWsClose(e) {
       console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
