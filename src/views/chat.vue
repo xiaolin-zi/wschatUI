@@ -365,7 +365,7 @@ export default {
   },
   watch: {
     // 监听当前消息列表，更新时，保持滚动条位于底部
-    messnowList: function scrollToBottom() {
+    chatRecordsList: function scrollToBottom() {
       this.$nextTick(() => {
         var message = document.getElementById('content_overflow')
         // 滚动滑钮到滚动条顶部的距离=滚动条的高度
@@ -507,37 +507,43 @@ export default {
 
     handleWsOpen() {
       console.log('WebSocket2已经打开!')
-
+      var user = this.userInfo;
       setInterval(function (ws, id) {
         if (ws.readyState === 1) {
           var obj = JSON.stringify({
             sendId: id,
             acceptId: id,
             acceptMember: '',
-            sendAvatar: this.userInfo.avatar,
-            sendNickname: this.userInfo.nickname,
+            sendAvatar: user.avatar,
+            sendNickname: user.nickname,
             contentType: 'ping',
             type: 1,
             sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
           })
           ws.send(obj)
+          console.log('WebSocket2发送心跳!')
         }
-      }, 55000, this.ws, this.userInfo.id)
-      console.log('开始发送心跳');
+      }, 5000, this.ws, this.userInfo.id)
     },
     handleWsClose(e) {
-      console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
+      console.log('WebSocket2关闭!')
+      // console.log(e)
     },
     handleWsError(e) {
       this.$message.error('意外错误，weksocket关闭，请刷新网页重试！')
-      // console.log('WebSocket2发生错误!')
+
       // console.log(e)
     },
     handleWsMessage(e) {
-      console.log('WebSocket2收到消息!')
+      var obj = JSON.parse(e.data)
+
+      if(obj.contentType === 'ping'){
+        console.log('WebSocket2收到心跳!')
+      }else{
+        console.log('WebSocket2收到消息!')
+      }
       // console.log(e.data)
       // 获取内容
-      var obj = JSON.parse(e.data)
 
       /** 接收类型-聊天内容 */
       if (obj.contentType === 'message') {
@@ -547,11 +553,11 @@ export default {
           this.$forceUpdate()
           // 判断是否和该对象的聊天内容为空，如果是需要初始化一下
           if (!this.allChatRecords[obj.acceptId]) {
-              this.allChatRecords[obj.acceptId] = [];
-              this.allChatRecords[obj.acceptId].push(obj);
-              if (this.acceptUser.userId === obj.acceptId) {
-                this.chatRecordsList = this.allChatRecords[obj.acceptId]
-              }
+            this.allChatRecords[obj.acceptId] = [];
+            this.allChatRecords[obj.acceptId].push(obj);
+            if (this.acceptUser.userId === obj.acceptId) {
+              this.chatRecordsList = this.allChatRecords[obj.acceptId]
+            }
           } else {
             this.allChatRecords[obj.acceptId].push(obj)
           }
