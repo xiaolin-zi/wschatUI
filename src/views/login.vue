@@ -4,18 +4,22 @@
       <h1 class="login__title">WSChat</h1>
       <form class="login__form" @submit.prevent="login">
         <input
-          type="text"
-          class="login__input"
-          placeholder="Account"
-          v-model="loginInfo.account"
+            type="text"
+            class="login__input"
+            placeholder="Account"
+            v-model="loginInfo.account"
         />
         <input
-          type="password"
-          class="login__input"
-          placeholder="Password"
-          v-model="loginInfo.password"
+            type="password"
+            class="login__input"
+            placeholder="Password"
+            v-model="loginInfo.password"
         />
         <button type="submit" class="login__button">Login</button>
+        <!--注册-->
+        <router-link to="/register" >
+          去注册
+        </router-link>
       </form>
     </div>
   </div>
@@ -146,6 +150,12 @@ export default {
 .login__button:disabled:focus {
   background-color: #ccc;
 }
+
+
+
+
+
+
 
 
 </style>

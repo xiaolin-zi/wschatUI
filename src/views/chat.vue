@@ -486,7 +486,7 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.acceptId];
+        this.chatRecordsList = this.allChatRecords[item.id];
       } else if (type == '群组列表') {
         // alert('群组列表')
         this.acceptUser = {
@@ -497,7 +497,7 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.acceptId];
+        this.chatRecordsList = this.allChatRecords[item.id];
         this.getGroupMembers();
       } else if (type == '添加好友') {
         // alert('添加好友')
