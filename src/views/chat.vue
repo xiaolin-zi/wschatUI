@@ -294,10 +294,13 @@ import groupApi from "@/api/group";
 import MessageApi from "@/api/message";
 import cookie from "js-cookie";
 import ossApi from "@/api/oss";
+import {zanghua} from "@/assets/zh.json";
+
 export default {
   name: 'wsChat',
   data() {
     return {
+      sensitiveWords: zanghua.split(','),//敏感词列表
       allChatRecords: {},//所有聊天记录
       groupMembers: [],//接收人id列表
       messageList: [],//会话列表
@@ -365,6 +368,7 @@ export default {
     this.getAllChatRecords();
     // this.getuserList()
     this.addCloseRightMenu()
+
   },
   watch: {
     // 监听当前消息列表，更新时，保持滚动条位于底部
@@ -385,9 +389,30 @@ export default {
     }
   },
   methods: {
+
+
+    filterSensitiveWords(text) {
+      for (var i = 0; i < this.sensitiveWords.length; i++) {
+        //构造正则表达式，g表示全局匹配，i表示不区分大小写
+        //要模糊匹配的敏感词
+        var regExp = new RegExp(this.sensitiveWords[i], 'gi');
+        //text有多少个敏感词就替换多少个*
+        text = text.replace(regExp, '***');
+      }
+      return text;
+    },
     getAllChatRecords() {
       MessageApi.getAllChatRecords().then((res) => {
         this.allChatRecords = res.data.data.map.allRecords;
+        //遍历所有聊天记录，将脏话置换为*
+        //获取脏话列表
+        for (let key in this.allChatRecords) {
+          this.allChatRecords[key].forEach((item) => {
+            if (item.contentType === 'message') {
+              item.content = this.filterSensitiveWords(item.content);
+            }
+          })
+        }
       })
     },
     formatDate(date) {
@@ -545,16 +570,16 @@ export default {
     handleWsMessage(e) {
       var obj = JSON.parse(e.data)
 
-      if(obj.contentType === 'ping'){
+      if (obj.contentType === 'ping') {
         console.log('WebSocket2收到心跳!')
-      }else{
+      } else {
         console.log('WebSocket2收到消息!')
       }
       // console.log(e.data)
       // 获取内容
 
       /** 接收类型-聊天内容 */
-      if (obj.contentType === 'message'|| obj.contentType === 'image') {
+      if (obj.contentType === 'message' || obj.contentType === 'image') {
         //更新会话列表的最后一条消息
         console.log(this.messageList)
         this.messageList.forEach((item) => {
@@ -586,7 +611,7 @@ export default {
           } else {
             this.allChatRecords[obj.acceptId].push(obj)
           }
-        }else{
+        } else {
           // 强制刷新
           this.$forceUpdate()
           // 判断是否和该对象的聊天内容为空，如果是需要初始化一下
@@ -609,7 +634,7 @@ export default {
       // console.log(this.userInfo);
       if ('WebSocket' in window) {
         const token = cookie.get('ws_token')
-        this.ws = new WebSocket(base.ip,[token]);//用于创建 WebSocket 对象。WebSocketTest对应的是java类的注解值
+        this.ws = new WebSocket(base.ip, [token]);//用于创建 WebSocket 对象。WebSocketTest对应的是java类的注解值
         // this.ws = new WebSocket(base.ip);
       } else {
         alert('当前浏览器 Not support websocket')
@@ -745,7 +770,7 @@ export default {
       let message = this.mess;
       if (contentType === 'image') {
         message = content
-        console.log("发送的图片消息："+message);
+        console.log("发送的图片消息：" + message);
       }
       if (message !== '') {
         // 发送消息格式
@@ -812,7 +837,7 @@ export default {
           MessageApi.saveMessageToRedis(obj2).then((res) => {
             // console.log(res);
           })
-        }else{
+        } else {
           //如果有，就更新一条
           let obj = {
             userId: this.userInfo.id,
