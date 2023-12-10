@@ -555,6 +555,19 @@ export default {
 
       /** 接收类型-聊天内容 */
       if (obj.contentType === 'message'|| obj.contentType === 'image') {
+        //更新会话列表的最后一条消息
+        console.log(this.messageList)
+        this.messageList.forEach((item) => {
+          if (item.acceptId === obj.acceptId) {
+            item.lastMess = obj.content;
+            item.lastTime = moment().format('MM-DD');
+            //更新redis
+            MessageApi.saveMessageToRedis(item).then((res) => {
+              // console.log(res);
+            })
+          }
+        })
+
         if (obj.acceptId !== this.userInfo.id) {
           // console.log(obj.accept_id)
           // 强制刷新
