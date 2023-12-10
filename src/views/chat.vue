@@ -762,6 +762,10 @@ export default {
             isHave = true;
           }
         })
+        let lastMess = this.mess;
+        if (contentType === 'image') {
+          lastMess = '[图片]'
+        }
         //如果没有，就添加一条
         if (!isHave) {
           let obj = {
@@ -770,7 +774,7 @@ export default {
             avatar: this.acceptUser.avatar,
             name: this.acceptUser.name,
             type: this.acceptUser.type,
-            lastMess: this.mess,
+            lastMess: lastMess,
             lastTime: moment().format('MM-DD'),
           }
           this.messageList.push(obj)
@@ -785,7 +789,7 @@ export default {
             avatar: this.userInfo.avatar,
             name: this.userInfo.nickname,
             type: 1,
-            lastMess: this.mess,
+            lastMess: lastMess,
             lastTime: moment().format('MM-DD'),
           }
           MessageApi.saveMessageToRedis(obj2).then((res) => {
@@ -799,12 +803,16 @@ export default {
             avatar: this.acceptUser.avatar,
             name: this.acceptUser.name,
             type: this.acceptUser.type,
-            lastMess: this.mess,
+            lastMess: lastMess,
             lastTime: moment().format('MM-DD'),
           }
           this.messageList.forEach((item) => {
             if (item.acceptId === this.acceptUser.userId) {
-              item.lastMess = this.mess;
+              if (contentType === 'image') {
+                item.lastMess = '[图片]'
+              } else {
+                item.lastMess = this.mess;
+              }
               item.lastTime = moment().format('MM-DD');
             }
           })
