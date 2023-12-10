@@ -559,7 +559,11 @@ export default {
         console.log(this.messageList)
         this.messageList.forEach((item) => {
           if (item.acceptId === obj.acceptId) {
-            item.lastMess = obj.content;
+            if (obj.contentType === 'image') {
+              item.lastMess = '[图片]';
+            } else {
+              item.lastMess = obj.content;
+            }
             item.lastTime = moment().format('MM-DD');
             //更新redis
             MessageApi.saveMessageToRedis(item).then((res) => {
