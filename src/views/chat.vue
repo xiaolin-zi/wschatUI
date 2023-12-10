@@ -767,6 +767,19 @@ export default {
           MessageApi.saveMessageToRedis(obj).then((res) => {
             // console.log(res);
           })
+          //对方的会话列表也要添加一条
+          let obj2 = {
+            userId: this.acceptUser.userId,
+            acceptId: this.userInfo.id,
+            avatar: this.userInfo.avatar,
+            name: this.userInfo.nickname,
+            type: 1,
+            lastMess: this.mess,
+            lastTime: moment().format('MM-DD'),
+          }
+          MessageApi.saveMessageToRedis(obj2).then((res) => {
+            // console.log(res);
+          })
         }else{
           //如果有，就更新一条
           let obj = {
