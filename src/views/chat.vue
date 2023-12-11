@@ -456,7 +456,7 @@ export default {
     getGroups() {
       groupApi.getGroupList().then((res) => {
         this.groupList = res.data.data.groupList;
-        // console.log(res);
+        // console.log(res);this.
       })
     },
     getFriends() {
@@ -580,22 +580,8 @@ export default {
 
       /** 接收类型-聊天内容 */
       if (obj.contentType === 'message' || obj.contentType === 'image') {
-        //更新会话列表的最后一条消息
-        console.log(this.messageList)
-        this.messageList.forEach((item) => {
-          if (item.acceptId === obj.acceptId) {
-            if (obj.contentType === 'image') {
-              item.lastMess = '[图片]';
-            } else {
-              item.lastMess = obj.content;
-            }
-            item.lastTime = moment().format('MM-DD');
-            //更新redis
-            MessageApi.saveMessageToRedis(item).then((res) => {
-              // console.log(res);
-            })
-          }
-        })
+        //现在能收到消息，说明在线，需要实时将最后一条消息更新到会话列表
+        this.updateLastMess(obj);
 
         if (obj.acceptId !== this.userInfo.id) {
           // console.log(obj.accept_id)
@@ -626,8 +612,24 @@ export default {
           }
         }
       }
-
-
+    },
+    //更新会话列表的最后一条消息
+    updateLastMess(obj){
+      console.log(this.messageList)
+      this.messageList.forEach((item) => {
+        if (item.acceptId === obj.acceptId) {
+          if (obj.contentType === 'image') {
+            item.lastMess = '[图片]';
+          } else {
+            item.lastMess = obj.content;
+          }
+          item.lastTime = moment().format('MM-DD');
+          //更新redis
+          MessageApi.saveMessageToRedis(item).then((res) => {
+            // console.log(res);
+          })
+        }
+      })
     },
     // 初始化websocket
     getwebsocket() {
@@ -862,6 +864,38 @@ export default {
           MessageApi.saveMessageToRedis(obj).then((res) => {
             // console.log(res);
           })
+          //对方的会话列表也要更新一条
+          let obj2 = {
+            userId: this.acceptUser.userId,
+            acceptId: this.userInfo.id,
+            avatar: this.userInfo.avatar,
+            name: this.userInfo.nickname,
+            type: 1,
+            lastMess: lastMess,
+            lastTime: moment().format('MM-DD'),
+          }
+          MessageApi.saveMessageToRedis(obj2).then((res) => {
+            // console.log(res);
+          })
+
+          //如果是群聊，还要更新群聊里每个人的会话列表
+          if (this.acceptUser.type === 2) {
+            this.groupMembers.forEach((item) => {
+              let obj = {
+                userId: item.id,
+                acceptId: this.acceptUser.userId,
+                avatar: this.acceptUser.avatar,
+                name: this.acceptUser.name,
+                type: this.acceptUser.type,
+                lastMess: lastMess,
+                lastTime: moment().format('MM-DD'),
+              }
+              MessageApi.saveMessageToRedis(obj).then((res) => {
+                // console.log(res);
+              })
+            })
+          }
+
         }
 
         // 发送完消息，清空输入框
