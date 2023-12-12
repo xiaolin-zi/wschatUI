@@ -155,13 +155,15 @@
             </div>
             <div class="mess_other">
               <div>
-                <span style="font-size: 8px;">{{ acceptUser.name }}   {{ formatDate(item.sendTime) }}</span>
+                <span style="font-size: 8px;color: red"  v-if="item.sendId==1" >{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
+                <span style="font-size: 8px;" v-else>{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
               </div>
               <div v-if="item.contentType === 'image'" class="img_left">
                 <el-image :src="item.content" :preview-src-list="imgNowList" class="images"></el-image>
               </div>
               <div v-else class="content_other_bgd" @contextmenu.prevent="show_rightMenu_mess_content($event, item)">
-                <span class="mess_content_msg">{{ item.content }}</span>
+                <span class="mess_content_msg" v-if="item.sendId==1" style="font-weight: 500">{{ item.content }}</span>
+                <span class="mess_content_msg" v-else>{{ item.content }}</span>
               </div>
             </div>
           </div>
@@ -175,13 +177,15 @@
             </div>
             <div class="mess_other">
               <div>
-                <span style="font-size: 8px;">{{ item.sendNickname }}   {{ formatDate(item.sendTime) }}</span>
+                <span style="font-size: 8px;color: red"  v-if="item.sendId==1">{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
+                <span style="font-size: 8px;" v-else>{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
               </div>
               <div v-if="item.contentType === 'image'" class="img_left">
                 <el-image :src="item.content" :preview-src-list="imgNowList" class="images"></el-image>
               </div>
               <div v-else class="content_other_bgd" @contextmenu.prevent="show_rightMenu_mess_content($event, item)">
-                <span class="mess_content_msg">{{ item.content }}</span>
+                <span class="mess_content_msg" v-if="item.sendId==1" style="font-weight: 500">{{ item.content }}</span>
+                <span class="mess_content_msg" v-else>{{ item.content }}</span>
               </div>
             </div>
           </div>
@@ -189,13 +193,15 @@
           <div v-else-if="item.sendId === userInfo.id " class="content_me">
             <div class="mess_me">
               <div>
-                <span style="font-size: 8px;">{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
+                <span style="font-size: 8px;color: red"  v-if="item.sendId==1" >{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
+                <span style="font-size: 8px;" v-else>{{ formatDate(item.sendTime) }}   {{ item.sendNickname }}</span>
               </div>
               <div v-if="item.contentType === 'image'" class="img">
                 <el-image :src="item.content" :preview-src-list="imgNowList" class="images"></el-image>
               </div>
               <div v-else class="content_me_bgd" @contextmenu.prevent="show_rightMenu_mess_content($event, item)">
-                <span class="mess_content_msg">{{ item.content }}</span>
+                <span class="mess_content_msg" v-if="item.sendId==1" style="font-weight: 500">{{ item.content }}</span>
+                <span class="mess_content_msg" v-else>{{ item.content }}</span>
               </div>
             </div>
             <div>
@@ -310,28 +316,7 @@ export default {
       myaction: 'tochat',
       tabName: 'chat',//tab选中名称
       selectedItem: null,//选中
-      RecommendUserList: [
-        {
-          userId: 1,
-          avatar: 'https://img.yzcdn.cn/vant/cat.jpeg',//用户头像
-          nickname: '小林'
-        },
-        {
-          userId: 1,
-          avatar: 'https://img.yzcdn.cn/vant/cat.jpeg',//用户头像
-          nickname: '小林'
-        },
-        {
-          userId: 1,
-          avatar: 'https://img.yzcdn.cn/vant/cat.jpeg',//用户头像
-          nickname: '小林'
-        },
-        {
-          userId: 1,
-          avatar: 'https://img.yzcdn.cn/vant/cat.jpeg',//用户头像
-          nickname: '小林'
-        }
-      ],//推荐用户列表
+      RecommendUserList: [],//推荐用户列表
       isShowDialog: false, // 发送图片预览dialog
       imageUrl: '', // 预览图
       files: {}, // 发送的文件
@@ -476,6 +461,8 @@ export default {
       if (tab.name == 'add') {
         // 触发‘添加好友’事件
         this.addFriend();
+        //查询推荐列表
+        this.getRecommend();
       } else if (tab.name == 'chat') {
         this.toChat();
       }
@@ -498,7 +485,7 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.acceptId];
+        this.chatRecordsList = this.allChatRecords[item.acceptId+"type-"+item.type];
         //将对应的会话聊天记录中的图片url放入imgNowList
         this.chatRecordsList.forEach((item) => {
           if (item.contentType === 'image') {
@@ -519,7 +506,7 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.id];
+        this.chatRecordsList = this.allChatRecords[item.id+"type-"+item.type];
       } else if (type == '群组列表') {
         // alert('群组列表')
         this.acceptUser = {
@@ -530,10 +517,11 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.id];
+        this.chatRecordsList = this.allChatRecords[item.id+"type-"+item.type];
         this.getGroupMembers();
       } else if (type == '添加好友') {
         // alert('添加好友')
+
       }
       this.selectedItem = item;
     },
@@ -588,27 +576,27 @@ export default {
           // 强制刷新
           this.$forceUpdate()
           // 判断是否和该对象的聊天内容为空，如果是需要初始化一下
-          if (!this.allChatRecords[obj.acceptId]) {
-            this.allChatRecords[obj.acceptId] = [];
-            this.allChatRecords[obj.acceptId].push(obj);
-            if (this.acceptUser.userId === obj.acceptId) {
-              this.chatRecordsList = this.allChatRecords[obj.acceptId]
+          if (!this.allChatRecords[obj.acceptId+"type-"+obj.type]) {
+            this.allChatRecords[obj.acceptId+"type-"+obj.type] = [];
+            this.allChatRecords[obj.acceptId+"type-"+obj.type].push(obj);
+            if (this.acceptUser.userId === obj.acceptId && this.acceptUser.type === obj.type) {
+              this.chatRecordsList = this.allChatRecords[obj.acceptId+"type-"+obj.type]
             }
           } else {
-            this.allChatRecords[obj.acceptId].push(obj)
+            this.allChatRecords[obj.acceptId+"type-"+obj.type].push(obj)
           }
         } else {
           // 强制刷新
           this.$forceUpdate()
           // 判断是否和该对象的聊天内容为空，如果是需要初始化一下
-          if (!this.allChatRecords[obj.sendId]) {
-            this.allChatRecords[obj.sendId] = [];
-            this.allChatRecords[obj.sendId].push(obj);
-            if (this.acceptUser.userId === obj.sendId) {
-              this.chatRecordsList = this.allChatRecords[obj.sendId]
+          if (!this.allChatRecords[obj.sendId+"type-"+obj.type]) {
+            this.allChatRecords[obj.sendId+"type-"+obj.type] = [];
+            this.allChatRecords[obj.sendId+"type-"+obj.type].push(obj);
+            if (this.acceptUser.userId === obj.sendId && this.acceptUser.type === obj.type) {
+              this.chatRecordsList = this.allChatRecords[obj.sendId+"type-"+obj.type]
             }
           } else {
-            this.allChatRecords[obj.sendId].push(obj)
+            this.allChatRecords[obj.sendId+"type-"+obj.type].push(obj)
           }
         }
       }
@@ -617,7 +605,7 @@ export default {
     updateLastMess(obj){
       console.log(this.messageList)
       this.messageList.forEach((item) => {
-        if (item.acceptId === obj.acceptId) {
+        if (item.acceptId === obj.acceptId && item.type === obj.type) {
           if (obj.contentType === 'image') {
             item.lastMess = '[图片]';
           } else {
@@ -783,6 +771,7 @@ export default {
             ids.push(item.id)
           })
         }
+
         let obj = JSON.stringify({
           sendId: this.userInfo.id,
           type: this.acceptUser.type,
@@ -815,6 +804,7 @@ export default {
           let obj = {
             userId: this.userInfo.id,
             acceptId: this.acceptUser.userId,
+            groupUserIds: ids,
             avatar: this.acceptUser.avatar,
             name: this.acceptUser.name,
             type: this.acceptUser.type,
@@ -822,17 +812,18 @@ export default {
             lastTime: moment().format('MM-DD'),
           }
           this.messageList.push(obj)
-          //保存到redis
+          //保存到redis（会加入两条，一条是自己的，一条是对方的）
           MessageApi.saveMessageToRedis(obj).then((res) => {
             // console.log(res);
           })
+
           //对方的会话列表也要添加一条
           let obj2 = {
             userId: this.acceptUser.userId,
             acceptId: this.userInfo.id,
             avatar: this.userInfo.avatar,
             name: this.userInfo.nickname,
-            type: 1,
+            type: this.acceptUser.type,
             lastMess: lastMess,
             lastTime: moment().format('MM-DD'),
           }
@@ -841,17 +832,8 @@ export default {
           })
         } else {
           //如果有，就更新一条
-          let obj = {
-            userId: this.userInfo.id,
-            acceptId: this.acceptUser.userId,
-            avatar: this.acceptUser.avatar,
-            name: this.acceptUser.name,
-            type: this.acceptUser.type,
-            lastMess: lastMess,
-            lastTime: moment().format('MM-DD'),
-          }
           this.messageList.forEach((item) => {
-            if (item.acceptId === this.acceptUser.userId) {
+            if (item.acceptId === this.acceptUser.userId && item.type === this.acceptUser.type) {
               if (contentType === 'image') {
                 item.lastMess = '[图片]'
               } else {
@@ -860,6 +842,17 @@ export default {
               item.lastTime = moment().format('MM-DD');
             }
           })
+          let obj = {
+            userId: this.userInfo.id,
+            acceptId: this.acceptUser.userId,
+            groupUserIds: ids,
+            avatar: this.acceptUser.avatar,
+            name: this.acceptUser.name,
+            type: this.acceptUser.type,
+            lastMess: lastMess,
+            lastTime: moment().format('MM-DD'),
+          }
+
           //保存到redis
           MessageApi.saveMessageToRedis(obj).then((res) => {
             // console.log(res);
@@ -870,7 +863,7 @@ export default {
             acceptId: this.userInfo.id,
             avatar: this.userInfo.avatar,
             name: this.userInfo.nickname,
-            type: 1,
+            type: this.acceptUser.type,
             lastMess: lastMess,
             lastTime: moment().format('MM-DD'),
           }
@@ -879,22 +872,22 @@ export default {
           })
 
           //如果是群聊，还要更新群聊里每个人的会话列表
-          if (this.acceptUser.type === 2) {
-            this.groupMembers.forEach((item) => {
-              let obj = {
-                userId: item.id,
-                acceptId: this.acceptUser.userId,
-                avatar: this.acceptUser.avatar,
-                name: this.acceptUser.name,
-                type: this.acceptUser.type,
-                lastMess: lastMess,
-                lastTime: moment().format('MM-DD'),
-              }
-              MessageApi.saveMessageToRedis(obj).then((res) => {
-                // console.log(res);
-              })
-            })
-          }
+          // if (this.acceptUser.type === 2) {
+          //   this.groupMembers.forEach((item) => {
+          //     let obj = {
+          //       userId: item.id,
+          //       acceptId: this.acceptUser.userId,
+          //       avatar: this.acceptUser.avatar,
+          //       name: this.acceptUser.name,
+          //       type: this.acceptUser.type,
+          //       lastMess: lastMess,
+          //       lastTime: moment().format('MM-DD'),
+          //     }
+          //     MessageApi.saveMessageToRedis(obj).then((res) => {
+          //       // console.log(res);
+          //     })
+          //   })
+          // }
 
         }
 
@@ -903,6 +896,13 @@ export default {
       }
     },
 
+    getRecommend() {
+      console.log("获取推荐用户列表")
+      userApi.getRecommendUserList().then((res) => {
+        this.RecommendUserList = res.data.data.list;
+        console.log(res);
+      })
+    }
   }
 
 }

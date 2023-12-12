@@ -9,4 +9,10 @@ export default {
             method: 'get',
         })
     },
+    getRecommendUserList(id) {
+        return request({
+            url: `/user/recommend`,
+            method: 'get',
+        })
+    }
 }
