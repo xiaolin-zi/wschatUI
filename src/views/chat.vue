@@ -506,7 +506,10 @@ export default {
         }
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.id+"type-"+item.type];
+        // console.log(item);
+        this.chatRecordsList = this.allChatRecords[item.id+"type-"+1];
+        console.log(item.id);
+        console.log(this.allChatRecords);
       } else if (type == '群组列表') {
         // alert('群组列表')
         this.acceptUser = {
@@ -515,9 +518,11 @@ export default {
           type: 2, // 对话用户类型(个人、群)
           avatar: item.avatar, // 对话用户头像
         }
+        // console.log(item);
+
         // 获取聊天记录
         // this.getChatRecords()
-        this.chatRecordsList = this.allChatRecords[item.id+"type-"+item.type];
+        this.chatRecordsList = this.allChatRecords[item.id+"type-"+2];
         this.getGroupMembers();
       } else if (type == '添加好友') {
         // alert('添加好友')
