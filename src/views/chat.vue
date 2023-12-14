@@ -148,6 +148,33 @@
             </el-card>
           </div>
         </el-tab-pane>
+        <el-tab-pane style="text-align: center" name="watch">
+          <span slot="label">
+            <svg class="icon" aria-hidden="true" style="font-size: 20px">
+              <use xlink:href="#icon-yiguanzhu"></use>
+            </svg>
+          </span>
+          <div style="text-align: center;width: 100%"><span>关注列表</span></div>
+
+        </el-tab-pane>
+        <el-tab-pane style="text-align: center" name="fans">
+          <span slot="label">
+            <svg class="icon" aria-hidden="true" style="font-size: 20px">
+              <use xlink:href="#icon-ziyuan"></use>
+            </svg>
+          </span>
+          <div style="text-align: center;width: 100%"><span>粉丝列表</span></div>
+
+        </el-tab-pane>
+        <el-tab-pane style="text-align: center" name="notify">
+          <span slot="label">
+            <svg class="icon" aria-hidden="true" style="font-size: 20px">
+              <use xlink:href="#icon-tongzhi"></use>
+            </svg>
+          </span>
+          <div style="text-align: center;width: 100%"><span>系统通知</span></div>
+        </el-tab-pane>
+
       </el-tabs>
     </div>
 
