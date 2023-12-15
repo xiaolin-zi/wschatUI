@@ -10,7 +10,10 @@
              </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>聊天列表</span></div>
-
+          <!--添加一个搜索框,可以通过会话名称进行过滤-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="messageSearchText" clearable></el-input>
+          </div>
           <div class="chat-list" style="height: 560px;scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: hidden;
@@ -58,6 +61,10 @@
              </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>好友列表</span></div>
+          <!--添加一个搜索框-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="friendSearchText" clearable></el-input>
+          </div>
           <div class="chat-list" style="height: 560px;scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: hidden;
@@ -91,6 +98,10 @@
             </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>群组列表</span></div>
+          <!--添加一个搜索框-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="groupSearchText" clearable></el-input>
+          </div>
           <div class="chat-list" style="height: 560px;scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: hidden;
@@ -122,6 +133,10 @@
             </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>关注列表</span></div>
+          <!--添加一个搜索框-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="watchSearchText" clearable></el-input>
+          </div>
           <div class="chat-list" style="height: 560px;scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: hidden;
@@ -155,6 +170,10 @@
             </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>粉丝列表</span></div>
+          <!--添加一个搜索框-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="fansSearchText" clearable></el-input>
+          </div>
           <div class="chat-list" style="height: 560px;scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: hidden;
@@ -233,7 +252,6 @@
           </div>
 
 
-
         </el-tab-pane>
         <el-tab-pane style="text-align: center" name="notify">
           <span slot="label">
@@ -242,6 +260,10 @@
             </svg>
           </span>
           <div style="text-align: center;width: 100%"><span>系统通知</span></div>
+          <!--添加一个搜索框-->
+          <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+            <el-input placeholder="搜索" v-model="SysSearchText" clearable></el-input>
+          </div>
         </el-tab-pane>
 
       </el-tabs>
@@ -432,14 +454,25 @@ export default {
   name: 'wsChat',
   data() {
     return {
+      friendSearchText: '',//好友搜索框
+      groupSearchText: '',//群组搜索框
+      SysSearchText: '',//系统通知搜索框
+      watchSearchText: '',//关注搜索框
+      fansSearchText: '',//粉丝搜索框
+      messageSearchText: '',//会话搜索框
       watchList: [],//关注列表
+      watchListCopy: [],//关注列表备份
       fansList: [],//粉丝列表
+      fansListCopy: [],//粉丝列表备份
       sensitiveWords: zanghua.split(','),//敏感词列表
       allChatRecords: {},//所有聊天记录
       groupMembers: [],//接收人id列表
       messageList: [],//会话列表
+      messageListCopy: [],//会话列表备份
       friendList: [],//好友列表
+      friendListCopy: [],//好友列表备份
       groupList: [],//群组列表
+      groupListCopy: [],//群组列表备份
       chatRecordsList: [],//消息列表
       myaction: '',
       tabName: 'chat',//tab选中名称
@@ -485,6 +518,37 @@ export default {
 
   },
   watch: {
+    //可以监听messageSearchText的变化，当messageSearchText变化时，进行过滤
+    messageSearchText: function (newVal, oldVal) {
+      this.messageList = this.messageList.filter(item => item.name.indexOf(newVal) !== -1);
+      if (newVal === '') {
+        this.messageList = this.messageListCopy;
+      }
+    },
+    friendSearchText: function (newVal, oldVal) {
+      this.friendList = this.friendList.filter(item => item.nickname.indexOf(newVal) !== -1);
+      if (newVal === '') {
+        this.friendList = this.friendListCopy;
+      }
+    },
+    groupSearchText: function (newVal, oldVal) {
+      this.groupList = this.groupList.filter(item => item.name.indexOf(newVal) !== -1);
+      if (newVal === '') {
+        this.groupList = this.groupListCopy;
+      }
+    },
+    watchSearchText: function (newVal, oldVal) {
+      this.watchList = this.watchList.filter(item => item.nickname.indexOf(newVal) !== -1);
+      if (newVal === '') {
+        this.watchList = this.watchListCopy;
+      }
+    },
+    fansSearchText: function (newVal, oldVal) {
+      this.fansList = this.fansList.filter(item => item.nickname.indexOf(newVal) !== -1);
+      if (newVal === '') {
+        this.fansList = this.fansListCopy;
+      }
+    },
     // 监听当前消息列表，更新时，保持滚动条位于底部
     chatRecordsList: function scrollToBottom() {
       this.$nextTick(() => {
@@ -503,13 +567,13 @@ export default {
     }
   },
   methods: {
-    applyGroup(userId){
+    applyGroup(userId) {
       //提示
-      this.$confirm('确定申请加入该群聊吗？','提示',{
+      this.$confirm('确定申请加入该群聊吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'info'
-      }).then(()=>{
+      }).then(() => {
         //创建系统消息
         let obj = JSON.stringify({
           sendId: this.userInfo.id,
@@ -668,30 +732,35 @@ export default {
     getMessages() {
       MessageApi.getMessageList().then((res) => {
         this.messageList = res.data.data.messageList;
+        this.messageListCopy = res.data.data.messageList;
         // console.log(res);
       })
     },
     getGroups() {
       groupApi.getGroupList().then((res) => {
         this.groupList = res.data.data.groupList;
+        this.groupListCopy = res.data.data.groupList;
         // console.log(res);this.
       })
     },
     getWatch() {
       userApi.getFollowList().then((res) => {
         this.watchList = res.data.data.list;
+        this.watchListCopy = res.data.data.list;
         // console.log(res);
       })
     },
     getFans() {
       userApi.getFansList().then((res) => {
         this.fansList = res.data.data.list;
+        this.fansListCopy = res.data.data.list;
         // console.log(res);
       })
     },
     getFriends() {
       userApi.getFriendList().then((res) => {
         this.friendList = res.data.data.list;
+        this.friendListCopy = res.data.data.list;
         // console.log(res);
       })
     },
@@ -762,7 +831,7 @@ export default {
           }
         }
         this.toWatch();
-      }else if(tab.name == 'fans') {
+      } else if (tab.name == 'fans') {
         if (this.myaction != "fans") {
           //将acceptUser置空
           this.acceptUser = {
@@ -775,14 +844,14 @@ export default {
         this.toFans();
       }
     },
-    toFans(){
+    toFans() {
       this.myaction = 'fans';
       //如果粉丝列表为空，进行初始化
       if (this.fansList.length === 0) {
         this.getFans();
       }
     },
-    toWatch(){
+    toWatch() {
       this.myaction = 'watch';
       //如果群组列表为空，进行初始化
       if (this.watchList.length === 0) {
@@ -1194,7 +1263,7 @@ export default {
       }
     },
     //发送系统消息
-    async sendSysMess(contentType,content){
+    async sendSysMess(contentType, content) {
 
     },
     getRecommend() {
