@@ -407,7 +407,7 @@
       <!--搜索框-->
       <div class="dlog_header">
         <el-input placeholder="搜索" v-model="friendSearchText" clearable></el-input>
-        <el-button type="primary" @click="searchFriend">搜索</el-button>
+        <el-button type="primary" @click="">搜索</el-button>
       </div>
       <!--搜索结果-->
       <div style="text-align: left;color: #8a8282;font-size: 14px;margin-top: 20px">搜索结果：</div>
