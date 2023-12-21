@@ -404,10 +404,16 @@
 
     <!--添加好友框-->
     <div v-else-if="myaction == 'add'" class="mess_dialog">
-      <div style="margin-top: 20px">
-        <el-input></el-input>
-        <el-button type="primary">搜索</el-button>
+      <!--搜索框-->
+      <div class="dlog_header">
+        <el-input placeholder="搜索" v-model="friendSearchText" clearable></el-input>
+        <el-button type="primary" @click="searchFriend">搜索</el-button>
       </div>
+      <!--搜索结果-->
+      <div style="text-align: left;color: #8a8282;font-size: 14px;margin-top: 20px">搜索结果：</div>
+      <!--居中展示-->
+
+
     </div>
     <!--其他显示-->
     <div v-else class="mess_dialog_false">
@@ -592,6 +598,7 @@ export default {
         });
         //新增系统会话记录
         //todo
+
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -876,7 +883,7 @@ export default {
       this.myaction = 'tochat';
     },
     addFriend() {
-      this.myaction = 'toadd';
+      this.myaction = 'add';
     },
     select(item, type) {
       // console.log(item)
@@ -1009,6 +1016,20 @@ export default {
             this.allChatRecords[obj.sendId + "type-" + obj.type].push(obj)
           }
         }
+      }else if (obj.contentType === 'system') {
+        /** 接收类型-好友申请 */
+        // let content = {
+        //   id: obj.send_id,
+        //   name: obj.send_name,
+        //   avatar_url: obj.send_avatar
+        // }
+        // 强制刷新
+        // this.pendingList.push(content)
+        this.$notify({
+          title: '提示',
+          message: '用户:"' + obj.sendNickname + '"--申请加入群聊!',
+          type: 'success'
+        })
       }
     },
     //更新会话列表的最后一条消息
