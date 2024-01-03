@@ -454,12 +454,14 @@ import groupApi from "@/api/group";
 import MessageApi from "@/api/message";
 import cookie from "js-cookie";
 import ossApi from "@/api/oss";
+import aiApi from "@/api/ai";
 import {zanghua} from "@/assets/zh.json";
 
 export default {
   name: 'wsChat',
   data() {
     return {
+      aiChatMess: [],//ai聊天信息
       friendSearchText: '',//好友搜索框
       groupSearchText: '',//群组搜索框
       SysSearchText: '',//系统通知搜索框
@@ -557,6 +559,24 @@ export default {
     },
     // 监听当前消息列表，更新时，保持滚动条位于底部
     chatRecordsList: function scrollToBottom() {
+      if(this.chatRecordsList){
+        //先清空
+        this.aiChatMess = []
+        this.chatRecordsList.forEach((item) => {
+          if(item.sendId === "2"){
+            this.aiChatMess.push({
+              "role": "assistant",
+              "content": item.content
+            })
+          }else{
+            this.aiChatMess.push({
+              "role": "user",
+              "content": item.content
+            })
+          }
+        })
+      }
+      console.log(this.aiChatMess)
       this.$nextTick(() => {
         var message = document.getElementById('content_overflow')
         // 滚动滑钮到滚动条顶部的距离=滚动条的高度
@@ -788,7 +808,6 @@ export default {
             type: '', // 对话用户类型(个人、群)
             avatar: '', // 对话用户头像
           }
-          console.log(this.acceptUser);
         }
         // 触发‘添加好友’事件
         this.addFriend();
@@ -1016,7 +1035,7 @@ export default {
             this.allChatRecords[obj.sendId + "type-" + obj.type].push(obj)
           }
         }
-      }else if (obj.contentType === 'system') {
+      } else if (obj.contentType === 'system') {
         /** 接收类型-好友申请 */
         // let content = {
         //   id: obj.send_id,
@@ -1034,7 +1053,6 @@ export default {
     },
     //更新会话列表的最后一条消息
     updateLastMess(obj) {
-      console.log(this.messageList)
       this.messageList.forEach((item) => {
         if (item.acceptId === obj.acceptId && item.type === obj.type) {
           if (obj.contentType === 'image') {
@@ -1218,6 +1236,39 @@ export default {
         //发送消息
         console.log("发送消息")
         this.ws.send(obj)
+        this.aiChatMess.push({
+          "role":"user",
+          "content":message
+        })
+        //如果对方是AI助理(ai助理的id为2)
+        if (this.acceptUser.userId === "2" && this.acceptUser.type === 1) {
+          //如果超过15条，删除前面的
+          if(this.aiChatMess.length > 15){
+            this.aiChatMess.splice(0, this.aiChatMess.length - 15)
+          }
+          var toAiObj = {
+            "userId": this.userInfo.id,
+            "messageDTOList": this.aiChatMess
+          }
+          aiApi.aiChat(toAiObj).then((res) =>{
+            console.log(res);
+            //发送消息
+            let obj = JSON.stringify({
+              sendId: "2",
+              type: 1,
+              acceptId: this.userInfo.id,
+              acceptMember: ids,
+              sendAvatar: this.acceptUser.avatar,
+              sendNickname: this.acceptUser.name,
+              contentType: "message",
+              content: res.data.result,
+              sendTime: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+            this.ws.send(obj)
+          })
+        }
+
+
         //判断会话列表有没有该用户的会话
         let isHave = false;
         this.messageList.forEach((item) => {
@@ -1243,7 +1294,6 @@ export default {
               lastTime: moment().format('MM-DD'),
             }
             this.messageList.push(obj)
-            console.log(obj);
             //保存到redis
             MessageApi.saveMessageToRedis(obj).then((res) => {
               // console.log(res);
@@ -1291,12 +1341,10 @@ export default {
       console.log("获取推荐用户列表")
       userApi.getRecommendUserList().then((res) => {
         this.RecommendUserList = res.data.data.list;
-        console.log(res);
       })
       console.log("获取推荐群聊列表")
       groupApi.getRecommendGroupList().then((res) => {
         this.RecommendGroupList = res.data.data.list;
-        console.log(res);
       })
     }
   }
