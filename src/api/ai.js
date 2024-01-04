@@ -3,7 +3,7 @@ export default {
     //ai对话
     aiChat(messgeInfo) {
         return request({
-            url: `/ai/chat`,
+            url: `/ai/chat/gpt`,
             method: 'post',
             data: messgeInfo
         })
