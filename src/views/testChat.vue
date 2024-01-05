@@ -146,8 +146,7 @@ import MarkdownIt from 'markdown-it'
 import "highlight.js/styles/github-dark.min.css";
 import ClipboardJS from 'clipboard';
 import hljs from "highlight.js";
-import aiApi from "@/api/ai";
-
+import requestIp from '@/api/base';
 export default {
   data() {
     return {
@@ -190,7 +189,7 @@ export default {
     },
     handleEnter(e) {
       if (e.key === "Enter" && !this.isMobile && !e.shiftKey) {
-        send();
+        this.send();
       }
     },
     highlightBlock(str, lang) {
@@ -285,7 +284,7 @@ export default {
       // })
 
       //流式请求
-      const res = await fetch('http://localhost:8080/ai/chat/gpt/stream', {
+      const res = await fetch(requestIp+'/ai/chat/gpt/stream', {
         method: 'POST',
         dataType: "text/event-stream",
         headers: {
