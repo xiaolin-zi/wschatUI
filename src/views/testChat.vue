@@ -284,7 +284,7 @@ export default {
       // })
 
       //流式请求
-      const res = await fetch(requestIp+'/ai/chat/gpt/stream', {
+      const res = await fetch('https://chat-back.tobeyou.cn/ai/chat/gpt/stream', {
         method: 'POST',
         dataType: "text/event-stream",
         headers: {
@@ -294,7 +294,6 @@ export default {
       })
       const reader = res.body.getReader()
       let decoder = new TextDecoder();
-      let result = '';
       let flag = true;
       while (flag) {
         const {done, value} = await reader.read();
