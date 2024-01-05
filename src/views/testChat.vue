@@ -146,7 +146,8 @@ import MarkdownIt from 'markdown-it'
 import "highlight.js/styles/github-dark.min.css";
 import ClipboardJS from 'clipboard';
 import hljs from "highlight.js";
-import requestIp from '@/api/base';
+import aiApi from "@/api/ai";
+
 export default {
   data() {
     return {
@@ -189,7 +190,7 @@ export default {
     },
     handleEnter(e) {
       if (e.key === "Enter" && !this.isMobile && !e.shiftKey) {
-        this.send();
+        send();
       }
     },
     highlightBlock(str, lang) {
@@ -294,6 +295,7 @@ export default {
       })
       const reader = res.body.getReader()
       let decoder = new TextDecoder();
+      let result = '';
       let flag = true;
       while (flag) {
         const {done, value} = await reader.read();
