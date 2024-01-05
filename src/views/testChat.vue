@@ -295,15 +295,14 @@ export default {
       })
       const reader = res.body.getReader()
       let decoder = new TextDecoder();
-      let result = '';
       let flag = true;
       while (flag) {
         const {done, value} = await reader.read();
         if (done) {
-          console.log("Stream ended");
           flag = false;
           break;
         }
+        console.log(decoder.decode(value));
         this.list[this.list.length - 1].text += decoder.decode(value);
       }
       this.list[this.list.length - 1].text = this.getMdiText(this.list[this.list.length - 1].text);
