@@ -273,8 +273,12 @@ export default {
         "role": "user",
         "content": message
       })
+      let model = "gpt-3.5-turbo";
+      if(process.env.GPT_MODEL){
+        model = process.env.GPT_MODEL;
+      }
       const toAiObj = {
-        "model": "gpt-3.5-turbo",
+        "model": model,
         "messageDTOList": this.aiChatMess
       }
       // aiApi.aiChat(toAiObj).then((res) => {
