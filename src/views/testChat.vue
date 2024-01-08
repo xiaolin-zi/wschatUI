@@ -274,8 +274,6 @@ export default {
         "content": message
       })
       let model = "gpt-3.5-turbo";
-      console.log(222);
-      console.log(process.env.GPT_MODEL);
       if(process.env.GPT_MODEL){
         model = process.env.GPT_MODEL;
       }
